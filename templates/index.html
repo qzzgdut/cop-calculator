@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>涡旋压缩机 COP 计算器</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem 1.5rem;
+        }
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+            body {
+                padding: 1rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+        }
+        .unit-selector {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .unit-selector label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        input, select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            display: none; /* Initially hidden */
+        }
+        #results h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 0.5rem;
+        }
+        pre {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: "Courier New", Courier, monospace;
+        }
+        .error {
+            color: #d9534f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>涡旋压缩机 COP 计算器</h1>
+        <form id="cop-form" class="form-grid">
+            <div class="form-group">
+                <label for="refrigerant">制冷剂</label>
+                <select id="refrigerant" name="refrigerant">
+                    <option value="R32">R32</option>
+                    <option value="R410A" selected>R410A</option>
+                    <option value="R454B">R454B</option>
+                    <option value="R290">R290</option>
+                    <option value="R134a">R134a</option>
+                </select>
+            </div>
+            <div></div> <!-- Spacer -->
+
+            <div class="unit-selector">
+                <strong>温度单位:</strong>
+                <input type="radio" id="celsius" name="temp_unit" value="C" checked>
+                <label for="celsius">摄氏度 (°C)</label>
+                <input type="radio" id="fahrenheit" name="temp_unit" value="F">
+                <label for="fahrenheit">华氏度 (°F)</label>
+            </div>
+
+            <div class="form-group">
+                <label for="t_evap">蒸发温度 (<span class="temp-unit-label">°C</span>)</label>
+                <input type="number" id="t_evap" name="t_evap" value="5" step="any" required>
+            </div>
+            <div class="form-group">
+                <label for="t_cond">冷凝温度 (<span class="temp-unit-label">°C</span>)</label>
+                <input type="number" id="t_cond" name="t_cond" value="50" step="any" required>
+            </div>
+            <div class="form-group">
+                <label for="superheat_k">吸气过热度 (K)</label>
+                <input type="number" id="superheat_k" name="superheat_k" value="5" step="any" required>
+            </div>
+            <div class="form-group">
+                <label for="subcooling_k">液体过冷度 (K)</label>
+                <input type="number" id="subcooling_k" name="subcooling_k" value="5" step="any" required>
+            </div>
+            <div class="form-group">
+                <label for="is_efficiency">等熵效率 (0-1)</label>
+                <input type="number" id="is_efficiency" name="is_efficiency" value="0.82" step="0.01" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="motor_efficiency">电机效率 (0-1)</label>
+                <input type="number" id="motor_efficiency" name="motor_efficiency" value="0.96" step="0.01" min="0" max="1" required>
+            </div>
+            <div class="form-group full-width">
+                <button type="submit">计算 COP</button>
+            </div>
+        </form>
+        <div id="results">
+            <h2>计算结果</h2>
+            <pre id="result-output"></pre>
+        </div>
+    </div>
+
+    <script>
+        const tempUnitRadios = document.getElementsByName('temp_unit');
+        const tempUnitLabels = document.querySelectorAll('.temp-unit-label');
+
+        tempUnitRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const unit = this.value === 'C' ? '°C' : '°F';
+                tempUnitLabels.forEach(label => label.textContent = unit);
+            });
+        });
+
+        document.getElementById('cop-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Handle temperature conversion if Fahrenheit is selected
+            const tempUnit = data.temp_unit;
+            let t_evap_c = Number(data.t_evap);
+            let t_cond_c = Number(data.t_cond);
+
+            if (tempUnit === 'F') {
+                t_evap_c = (t_evap_c - 32) * 5 / 9;
+                t_cond_c = (t_cond_c - 32) * 5 / 9;
+            }
+
+            const payload = {
+                refrigerant: data.refrigerant,
+                t_evap_c: t_evap_c,
+                t_cond_c: t_cond_c,
+                superheat_k: Number(data.superheat_k),
+                subcooling_k: Number(data.subcooling_k),
+                is_efficiency: Number(data.is_efficiency),
+                motor_efficiency: Number(data.motor_efficiency)
+            };
+            
+            const resultsDiv = document.getElementById('results');
+            const outputPre = document.getElementById('result-output');
+            
+            resultsDiv.style.display = 'block';
+            outputPre.textContent = '正在计算...';
+            outputPre.classList.remove('error');
+
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP 错误! 状态: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (typeof result === 'object' && result !== null) {
+                    outputPre.textContent = JSON.stringify(result, null, 4);
+                } else {
+                     throw new Error('收到了无效的响应格式。');
+                }
+            } catch (error) {
+                outputPre.classList.add('error');
+                outputPre.textContent = `计算失败: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
