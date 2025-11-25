@@ -125,17 +125,17 @@ def calculate_scroll_cop(refrigerant, t_evap_c, t_cond_c, superheat_k=5, subcool
         cop_scroll_limit = q_cooling / w_actual
 
         return {
-            "Refrigerant": refrigerant,
-            "Conditions": f"Evap: {t_evap_c}C, Cond: {t_cond_c}C",
-            "Carnot_COP_Limit": round(cop_carnot, 3),
-            "Ideal_Rankine_COP": round(cop_ideal_cycle, 3),
-            "Scroll_Tech_Limit_COP": round(cop_scroll_limit, 3),
-            "Details": {
-                "Isentropic_Eff": is_efficiency,
-                "Motor_Eff": motor_efficiency,
-                "Pressure_Ratio": round(p_cond/p_evap, 2),
-                "Discharge_Temp_Ideal": round(t2_ideal - 273.15, 2),
-                "Liquid_Temp": round(t_liquid - 273.15, 2)
+            "制冷剂": refrigerant,
+            "工况": f"蒸发: {t_evap_c}°C, 冷凝: {t_cond_c}°C",
+            "卡诺COP极限 (理论最大值)": round(cop_carnot, 3),
+            "理想朗肯循环COP": round(cop_ideal_cycle, 3),
+            "涡旋机技术极限COP": round(cop_scroll_limit, 3),
+            "详细参数": {
+                "等熵效率": is_efficiency,
+                "电机效率": motor_efficiency,
+                "压缩比": round(p_cond/p_evap, 2),
+                "理想排气温度(°C)": round(t2_ideal - 273.15, 2),
+                "冷凝出液温度(°C)": round(t_liquid - 273.15, 2)
             }
         }
 
